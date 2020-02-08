@@ -6,9 +6,9 @@ const debug = require('debug')('achievements:utils:state');
 * @param user {Object} - The user to create.
 */
 function createUserIfNotExists(state, user) {
-  const existingUser = state.db.get('users').find({id: user.id}).value();
+  const existingUser = state.db.get('users').find({username: user.username}).value();
   if (!existingUser) {
-    debug(`Created user '${user.name}' with id ${user.id}`);
+    debug(`Created user '${user.name}' (${user.username})`);
     state.db.get('users').push({...user, achievements: []}).write();
   }
 }
@@ -24,7 +24,7 @@ function createUserIfNotExists(state, user) {
 function userHasAchievement(state, user, achievement) {
   createUserIfNotExists(state, user, achievement);
 
-  return Boolean(state.db.get('users').find({id: user.id}).get('achievements').find({name: achievement}).value());
+  return Boolean(state.db.get('users').find({username: user.username}).get('achievements').find({name: achievement}).value());
 }
 
 /**
@@ -37,8 +37,8 @@ function userHasAchievement(state, user, achievement) {
 function unlockAchievement(state, user, achievement) {
   createUserIfNotExists(state, user, achievement);
 
-  debug(`User '${user.name}' unlocked '${achievement}'`);
-  state.db.get('users').find({id: user.id}).get('achievements').push({name: achievement, timestamp: Date.now()}).write();
+  debug(`User '${user.name}' (${user.username}) unlocked '${achievement}'`);
+  state.db.get('users').find({username: user.username}).get('achievements').push({name: achievement, timestamp: Date.now()}).write();
 }
 
 module.exports = {

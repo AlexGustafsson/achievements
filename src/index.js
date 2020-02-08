@@ -41,9 +41,9 @@ app.get('/users', (req, res) => {
 });
 
 // List specific user endpoint
-app.get('/users/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const user = state.db.get('users').find({id}).value();
+app.get('/users/:username', (req, res) => {
+  const username = req.params.username;
+  const user = state.db.get('users').find({username}).value();
   if (user)
     return res.json(user);
 

@@ -4,6 +4,15 @@
 * @returns {Object} - The parsed user object.
 */
 function parseUser(body) {
+  if (body['user']) {
+    return {
+      id: null,
+      name: body['user']['name'],
+      username: body['user']['username'],
+      avatar: body['user']['avatar_url']
+    };
+  }
+
   return {
     id: body['user_id'],
     name: body['user_name'],
