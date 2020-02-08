@@ -9,12 +9,11 @@ const {unlockAchievement} = require('./state');
 async function executeHooks(state, body, hooks) {
   /* eslint-disable no-await-in-loop */
   for (const hook of hooks) {
-    const unlock = await hook(state, body);
-    if (!unlock)
-      return;
-
-    const {user, achievement} = unlock;
-    unlockAchievement(state, user, achievement);
+    const unlocks = await hook(state, body);
+    for (const unlock of unlocks) {
+      const {user, achievement} = unlock;
+      unlockAchievement(state, user, achievement);
+    }
   }
   /* eslint-enable no-await-in-loop */
 }
