@@ -37,6 +37,9 @@ app.post('/webhook', (req, res) => {
 // List users endpoint
 app.get('/users', (req, res) => {
   const users = state.db.get('users').value();
+  // Strip emails
+  for (const user of users)
+    delete user.email;
   return res.json(users);
 });
 
@@ -46,7 +49,8 @@ app.get('/users/:username', (req, res) => {
   const user = state.db.get('users').find({username}).value();
   if (user)
     return res.json(user);
-
+  // Strip email
+  delete user.email;
   return res.status(404).json({error: 'User not found'});
 });
 
