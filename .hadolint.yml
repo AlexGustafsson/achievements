@@ -1,0 +1,4 @@
+ignored:
+
+trustedRegistries:
+  - docker.io

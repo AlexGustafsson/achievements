@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+content="$(grep -v '^#' "$1")"
+message="$(head -1 <<< "$content")"
+description="$(tail -n +2 <<< "$content")"
+
+# Require the message to be at most 50 characters
+if [[ "$(echo -n "$message" | wc -c )" -gt 50 ]] && [[ "$(echo -n "$message" | grep -c '^Merge ')" -eq 0 ]]; then
+  echo "The commit message must not be longer than 50 characters. Use the description instead"
+  exit 1
+fi
+
+# Require the message to end with a letter or digit
+if [[ "$(echo -n "$message" | grep -c '[A-Za-z0-9]$')" -eq 0 ]]; then
+  echo "The commit message must not end with any form of punctation"
+  exit 1
+fi
+
+# Require the description to start with a blank line
+if [[ "$(echo -n "$description" | head -1 | wc -c)" -gt 1 ]]; then
+  echo "Leave a blank line between the message and the description"
+  exit 1
+fi
+
+# Require the description to wrap on 72 characters
+while read -r line; do
+   if [[ "$(echo -n "$line" | wc -c)" -gt 72 ]]; then
+     echo "The commit description should not contain a line longer than 72 characters. Wrap the body"
+     exit 1
+   fi
+done <<< "$description"
+
+message_whitelist="$(cat <<EOF
+Add
+Allow
+Avoid
+Change
+Check
+Create
+Delete
+Deny
+Edit
+Ensure
+Fix
+Handle
+Implement
+Improve
+Initial
+Make
+Merge
+Move
+Remove
+Rename
+Replace
+Revert
+Revisit
+Skip
+Tag
+Update
+Use
+EOF
+)"
+
+# Only allow whitelisted start of messages
+while read -r word; do
+  if [[ "$(echo "$message" | grep -c "^$word ")" -eq 1 ]]; then
+    exit 0
+  fi
+done <<< "$message_whitelist"
+
+echo "'$(echo "$message" | grep -o "^[^ ]\+")' is a non-permitted start of the commit message. Use one of the whitelisted messages"
+exit 1

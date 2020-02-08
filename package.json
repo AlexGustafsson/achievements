@@ -1,0 +1,85 @@
+{
+  "name": "achievements",
+  "version": "0.1.0",
+  "description": "A GitLab webhook listener to add achievements to interactions",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "DEBUG=achievements:* node src/index.js",
+    "start": "DEBUG=achievements:* NODE_ENV=production node src/index.js",
+    "lint-javascript": "xo",
+    "lint-shell": "shellcheck $(find . -type f -name '*.sh' -not -path './node_modules/*' -not -path './.git/*') $(find ./ci/hooks -type f)",
+    "lint-docker": "hadolint --config .hadolint.yml Dockerfile",
+    "test": "ava",
+    "coverage": "nyc ava -t",
+    "check-duplicate-code": "jsinspect -t 20 src",
+    "build": "./build.sh"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ava": "^3.2.0",
+    "husky": "^4.2.1",
+    "jsinspect": "^0.12.7",
+    "nyc": "^15.0.0",
+    "xo": "^0.25.3"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "debug": "^4.1.1",
+    "express": "^4.17.1",
+    "lowdb": "^1.0.0"
+  },
+  "xo": {
+    "space": 2,
+    "esnext": true,
+    "rules": {
+      "curly": [
+        "error",
+        "multi-or-nest",
+        "consistent"
+      ],
+      "no-use-before-define": [
+        "error",
+        {
+          "classes": false
+        }
+      ],
+      "unicorn/catch-error-name": [
+        "error",
+        {
+          "name": "error"
+        }
+      ],
+      "dot-notation": [
+        "off"
+      ],
+      "quote-props": [
+        "off"
+      ],
+      "object-curly-spacing": [
+        "off"
+      ],
+      "no-new": [
+        "off"
+      ],
+      "padding-line-between-statements": [
+        "off"
+      ]
+    }
+  },
+  "ava": {
+    "files": [
+      "test/*.js"
+    ],
+    "concurrency": 5,
+    "failFast": false,
+    "verbose": true,
+    "compileEnhancements": false
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "./ci/hooks/pre-commit",
+      "commit-msg": "./ci/hooks/commit-msg"
+    }
+  }
+}

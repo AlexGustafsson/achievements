@@ -1,0 +1,6 @@
+{
+  "First blood": {
+    "description": "Push a commit you authored to GitLab.",
+    "points": 1
+  }
+}

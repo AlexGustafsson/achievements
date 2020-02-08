@@ -1,0 +1,51 @@
+image: node:12-stretch
+
+stages:
+  - static analysis
+  - test
+  - build
+
+before_script:
+  - npm install
+  - apt-get update; apt-get install curl
+  - mkdir -p build/badges
+
+cache:
+  paths:
+    - node_modules
+
+check dependencies:
+  stage: static analysis
+  script: ci/check-dependencies.sh
+  artifacts:
+    paths:
+      - build/badges/*.svg
+    when: always
+
+check duplicate code:
+  stage: static analysis
+  script: ci/check-duplicate-code.sh
+
+lint javascript code:
+  stage: static analysis
+  script: npm run lint-javascript
+
+lint shell code:
+  stage: static analysis
+  script: npm run lint-shell
+
+lint Dockerfile:
+  stage: static analysis
+  script: npm run lint-docker
+
+unit tests:
+  stage: test
+  script: ./ci/test.sh
+
+coverage:
+  stage: test
+  script: ./ci/coverage.sh
+  artifacts:
+    paths:
+      - build/badges/*.svg
+    when: always

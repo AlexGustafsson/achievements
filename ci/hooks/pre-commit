@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+if [[ "$(echo "$branch" | grep -c '[^a-z0-9-]')" -gt 0 ]]; then
+  echo "The branch name must only include alphanumerical characters, seperated by a hyphen"
+  exit 1
+fi
+
+branch_whitelist="$(cat <<EOF
+feature
+patch
+master
+development
+EOF
+)"
+
+# Only allow whitelisted start of branches
+while read -r word; do
+  if [[ "$(echo "$branch" | grep -c "^$word-\{0,1\}")" -eq 1 ]]; then
+    exit 0
+  fi
+done <<< "$branch_whitelist"
+
+echo "'$branch' is a non-permitted branch name. Use one of the whitelisted names"
+exit 1
