@@ -47,10 +47,12 @@ app.get('/users', (req, res) => {
 app.get('/users/:username', (req, res) => {
   const username = req.params.username;
   const user = state.db.get('users').find({username}).value();
-  if (user)
+  if (user) {
+    // Strip email
+    delete user.email;
     return res.json(user);
-  // Strip email
-  delete user.email;
+  }
+
   return res.status(404).json({error: 'User not found'});
 });
 
