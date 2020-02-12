@@ -45,7 +45,7 @@ app.get('/users', (req, res) => {
 
 // List specific user endpoint
 app.get('/users/:username', (req, res) => {
-  const username = req.params.username;
+  const {username} = req.params;
   const user = state.db.get('users').find({username}).value();
   if (user) {
     // Strip email
