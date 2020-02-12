@@ -54,7 +54,13 @@ The API is currently undocumented. Please see the `src/index.js` file for curren
 
 ### Achievements
 
-The list of achievements is currently undocumented. Please see the `src/achievements.json` file for current achievements.
+The list of achievements is currently undocumented. Please see the `src/achievements.json` file for current achievements. This file is merely the available achievements, not how achievements are implemented.
+
+#### Implementing an achievement
+
+The application exposes GitLab's webhooks as hooks available within the `hooks` directory. Each file corresponds to an event type available via [GitLab's webhooks](https://docs.gitlab.com/ee/user/project/integrations/webhooks.html).
+
+Each exported function in a hook file will be executed when an event is received from GitLab. Currently the documentation of the API is sparse, but there are some implementations from which one should be able to interpolate an implementation.
 
 ## Contributing
 
