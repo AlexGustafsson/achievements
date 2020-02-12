@@ -1,22 +1,27 @@
-image: node:12-stretch
+image: registry.anansi.xyz/anansi/javascript-ci-image:latest
 
 stages:
+  - prepare
   - static analysis
   - test
   - build
 
-before_script:
-  - npm install
-  - apt-get update; apt-get install curl
-  - mkdir -p build/badges
-
 cache:
   paths:
-    - node_modules
+    - ./node_modules
+  key: ${CI_JOB_NAME}
+
+install dependencies:
+  stage: prepare
+  script: npm install
+  artifacts:
+    paths:
+      - ./node_modules
+    expire_in: 1h
 
 check dependencies:
   stage: static analysis
-  script: ci/check-dependencies.sh
+  script: ./ci/check-dependencies.sh
   artifacts:
     paths:
       - build/badges/*.svg
@@ -24,7 +29,7 @@ check dependencies:
 
 check duplicate code:
   stage: static analysis
-  script: ci/check-duplicate-code.sh
+  script: ./ci/check-duplicate-code.sh
 
 lint javascript code:
   stage: static analysis
@@ -47,5 +52,5 @@ coverage:
   script: ./ci/coverage.sh
   artifacts:
     paths:
-      - build/badges/*.svg
+      - ./build/badges/*.svg
     when: always
