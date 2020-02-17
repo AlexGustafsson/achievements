@@ -40,7 +40,7 @@ npm start
 npm run dev
 ```
 
-The port can be controlled using the environment variable `PORT`. To configure the server to verify GitLab webhooks, use the environment variable `GITLAB_ENVIRONMENT`.
+The port can be controlled using the environment variable `PORT`. To configure the server to verify GitLab webhooks, use the environment variable `GITLAB_ENVIRONMENT`. The directory used for data storage can be configured using the `DATA_DIRECTORY` environment variable.
 
 The application should run behind a reverse proxy as it does not handle TLS, load balancing, rate limiting or other imortant techniques.
 

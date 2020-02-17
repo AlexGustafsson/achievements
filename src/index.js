@@ -7,10 +7,19 @@ const utils = require('./utils');
 const State = require('./state');
 const achievements = require('./achievements.json');
 const {executeHooks} = utils.hooks;
+const {createDirectory, storeWebhook} = utils.io;
+
+const DATA_DIRECTORY = process.env.DATA_DIRECTORY || './data';
+const WEBHOOKS_DIRECTORY = `${DATA_DIRECTORY}/webhooks`;
+const STORE_FILE = `${DATA_DIRECTORY}/store.json`;
+const GITLAB_TOKEN = process.env.GITLAB_TOKEN;
+const PORT = process.env.PORT || 3000;
 
 const app = express();
+// Initialize data directories
+createDirectory(WEBHOOKS_DIRECTORY);
 // Initialize the state store
-const state = new State(process.env.STORE_PATH || './store.json');
+const state = new State(STORE_FILE);
 
 // Setup Body Parser as a middleware
 app.use(bodyParser.json());
@@ -22,15 +31,18 @@ app.post('/webhook', (req, res) => {
     return res.status(400).json({error: 'Missing GitLab event header'});
 
   const token = req.header('X-Gitlab-Token');
-  if (token !== process.env.GITLAB_TOKEN)
+  if (token !== GITLAB_TOKEN)
     return res.status(403).json({error: 'Missing or bad GitLab token header'});
 
-  const kind = req.body['object_kind'];
+  const webhook = req.body;
+  storeWebhook(WEBHOOKS_DIRECTORY, webhook);
+
+  const kind = webhook['object_kind'];
   const hooks = hookByKind(kind);
   if (!hooks)
     return res.status(400).json({error: 'No such hook'});
 
-  executeHooks(state, req.body, hooks);
+  executeHooks(state, webhook, hooks);
   return res.status(200).json({});
 });
 
@@ -62,6 +74,6 @@ app.get('/achievements', (req, res) => {
 });
 
 // Start the server
-const port = process.env.PORT || 3000;
+const port = PORT;
 app.listen(port);
 debug(`Listening on port ${port}`);

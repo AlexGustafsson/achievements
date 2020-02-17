@@ -5,7 +5,7 @@ services:
     networks:
       - traefik-achievements-backend
     volumes:
-      - /mnt/gluster/gv1/achievements-backend/store.json:/app/store.json
+      - /mnt/gluster/gv1/achievements-backend:/app/data
     deploy:
       labels:
         - traefik.enable=true
@@ -15,6 +15,6 @@ services:
         - traefik.http.routers.achievements-backend.rule=Host(`achievements-backend.anansi.xyz`)
         - traefik.http.routers.achievements-backend.entrypoints=https
         - traefik.http.routers.achievements-backend.tls=true
-networks:  
+networks:
   traefik-achievements-backend:
     external: true
