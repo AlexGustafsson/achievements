@@ -6,6 +6,8 @@ services:
       - traefik-achievements-backend
     volumes:
       - /mnt/gluster/gv1/achievements-backend:/app/data
+    environment:
+      - GITLAB_TOKEN
     deploy:
       labels:
         - traefik.enable=true
