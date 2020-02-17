@@ -1,0 +1,20 @@
+version: '3.1'
+services:
+  achievements-backend:
+    image: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:${CI_BUILD_REF_NAME}"
+    networks:
+      - traefik-achievements-backend
+    volumes:
+      - /mnt/gluster/gv1/achievements-backend/store.json:/app/store.json
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik-achievements-backend
+        - traefik.http.services.achievements-backend.loadbalancer.server.port=3000
+        - traefik.http.routers.achievements-backend.service=achievements-backend
+        - traefik.http.routers.achievements-backend.rule=Host(`achievements-backend.anansi.xyz`)
+        - traefik.http.routers.achievements-backend.entrypoints=https
+        - traefik.http.routers.achievements-backend.tls=true
+networks:  
+  traefik-achievements-backend:
+    external: true
