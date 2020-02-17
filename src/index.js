@@ -12,7 +12,7 @@ const {createDirectory, storeWebhook} = utils.io;
 const DATA_DIRECTORY = process.env.DATA_DIRECTORY || './data';
 const WEBHOOKS_DIRECTORY = `${DATA_DIRECTORY}/webhooks`;
 const STORE_FILE = `${DATA_DIRECTORY}/store.json`;
-const GITLAB_TOKEN = process.env.GITLAB_TOKEN;
+const {GITLAB_TOKEN} = process.env;
 const PORT = process.env.PORT || 3000;
 
 const app = express();
