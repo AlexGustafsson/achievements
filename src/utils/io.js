@@ -24,7 +24,39 @@ async function storeWebhook(directory, webhook) {
   await fs.promises.writeFile(path.resolve(directory, `./${hash}`), text);
 }
 
+/**
+* Load stored webhooks from the data directory.
+* @param directory {String} - The directory to load webhooks from.
+* @returns {Array} - An array of webhook objects.
+*/
+async function loadWebhooks(directory) {
+  const filePaths = await fs.promises.readdir(directory);
+
+  const webhooks = [];
+
+  for (const filePath of filePaths) {
+    let content = null;
+    try {
+      content = await fs.promises.readFile(path.resolve(directory, `./${filePath}`)); // eslint-disable-line no-await-in-loop
+    } catch (error) {
+      throw new Error(`Unable to read stored webhook '${filePath}'`, error);
+    }
+
+    let webhook = null;
+    try {
+      webhook = JSON.parse(content);
+    } catch (error) {
+      throw new Error(`Unable to parse stored webhook '${filePath}'`, error);
+    }
+
+    webhooks.push(webhook);
+  }
+
+  return webhooks;
+}
+
 module.exports = {
   createDirectory,
-  storeWebhook
+  storeWebhook,
+  loadWebhooks
 };

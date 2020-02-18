@@ -7,7 +7,7 @@ const utils = require('./utils');
 const State = require('./state');
 const achievements = require('./achievements.json');
 const {executeHooks} = utils.hooks;
-const {createDirectory, storeWebhook} = utils.io;
+const {createDirectory, storeWebhook, loadWebhooks} = utils.io;
 
 const DATA_DIRECTORY = process.env.DATA_DIRECTORY || './data';
 const WEBHOOKS_DIRECTORY = `${DATA_DIRECTORY}/webhooks`;
@@ -16,10 +16,7 @@ const {GITLAB_TOKEN} = process.env;
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-// Initialize data directories
-createDirectory(WEBHOOKS_DIRECTORY);
-// Initialize the state store
-const state = new State(STORE_FILE);
+const state = new State();
 
 // Setup Body Parser as a middleware
 app.use(bodyParser.json());
@@ -73,7 +70,37 @@ app.get('/achievements', (req, res) => {
   return res.json(achievements);
 });
 
-// Start the server
-const port = PORT;
-app.listen(port);
-debug(`Listening on port ${port}`);
+async function checkStoredWebhooks() {
+  // Run through all stored hooks to check for new achievements
+  let webhooks = [];
+  try {
+    webhooks = await loadWebhooks(WEBHOOKS_DIRECTORY);
+  } catch (error) {
+    debug('Unable to load stored webhooks. Skipping check', error);
+  }
+
+  debug(`Loaded ${webhooks.length} stored webhook(s). Checking them for new achievements`);
+  for (const webhook of webhooks) {
+    const kind = webhook['object_kind'];
+    const hooks = hookByKind(kind);
+    if (hooks)
+      await executeHooks(state, webhook, hooks); // eslint-disable-line no-await-in-loop
+  }
+}
+
+async function start() {
+  // Initialize data directories
+  await createDirectory(WEBHOOKS_DIRECTORY);
+
+  // Initialize the state store
+  state.load(STORE_FILE);
+
+  await checkStoredWebhooks();
+
+  // Start the server
+  const port = PORT;
+  app.listen(port);
+  debug(`Listening on port ${port}`);
+}
+
+start();
