@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Skip tag validation if there are none
+if [ ! "$(ls -A ./.git/refs/tags/)" ]; then
+  exit 0
+fi
+
+# Only allow whitelisted tags, such as v0.1.0
+for file in ./.git/refs/tags/*; do
+  tag="${file/.\/.git\/refs\/tags\//}"
+  if [[ "$(echo "$tag" | grep -c "^v[0-9]\+\.[0-9]\+\.[0-9]\+")" -eq 0 ]]; then
+    echo "The tag '$tag' is not one of the whitelisted tags"
+    exit 1
+  fi
+done
