@@ -1,6 +1,7 @@
 const debug = require('debug')('achievements:server');
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const {hookByKind} = require('./hooks');
 const utils = require('./utils');
@@ -20,6 +21,9 @@ const state = new State();
 
 // Setup Body Parser as a middleware
 app.use(bodyParser.json());
+
+// Setup CORS
+app.use(cors());
 
 // The GitLab webhook endpoint
 app.post('/webhook', (req, res) => {
