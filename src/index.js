@@ -7,17 +7,19 @@ const {hookByKind} = require('./hooks');
 const utils = require('./utils');
 const State = require('./state');
 const achievements = require('./achievements.json');
+const WebhookStore = require('./webhook-store');
 const {executeHooks} = utils.hooks;
 const {createDirectory, storeWebhook, loadWebhooks} = utils.io;
 
 const DATA_DIRECTORY = process.env.DATA_DIRECTORY || './data';
-const WEBHOOKS_DIRECTORY = `${DATA_DIRECTORY}/webhooks`;
 const STORE_FILE = `${DATA_DIRECTORY}/store.json`;
+const WEBHOOK_STORE_FILE = `${DATA_DIRECTORY}/webhooks.sqlite3`;
 const {GITLAB_TOKEN} = process.env;
 const PORT = process.env.PORT || 3000;
 
 const app = express();
 const state = new State();
+const webhookStore = new WebhookStore();
 
 // Setup Body Parser as a middleware
 app.use(bodyParser.json());
@@ -36,7 +38,7 @@ app.post('/webhook', (req, res) => {
     return res.status(403).json({error: 'Missing or bad GitLab token header'});
 
   const webhook = req.body;
-  storeWebhook(WEBHOOKS_DIRECTORY, webhook);
+  webhookStore.store(webhook);
 
   const kind = webhook['object_kind'];
   const hooks = hookByKind(kind);
@@ -78,7 +80,7 @@ async function checkStoredWebhooks() {
   // Run through all stored hooks to check for new achievements
   let webhooks = [];
   try {
-    webhooks = await loadWebhooks(WEBHOOKS_DIRECTORY);
+    webhooks = await webhookStore.getWebhooks();
   } catch (error) {
     debug('Unable to load stored webhooks. Skipping check', error);
   }
@@ -94,10 +96,13 @@ async function checkStoredWebhooks() {
 
 async function start() {
   // Initialize data directories
-  await createDirectory(WEBHOOKS_DIRECTORY);
+  await createDirectory(DATA_DIRECTORY);
 
   // Initialize the state store
   state.load(STORE_FILE);
+
+  // Initialize the webhook store
+  webhookStore.load(WEBHOOK_STORE_FILE);
 
   await checkStoredWebhooks();
 
