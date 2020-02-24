@@ -1,6 +1,6 @@
 {
   "name": "achievements",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "A GitLab webhook listener to add achievements to interactions",
   "main": "src/index.js",
   "scripts": {
