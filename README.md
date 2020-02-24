@@ -93,14 +93,6 @@ This project targets NodeJS 13.
 
 #### Development dependencies
 
-**The following dependencies are available via npm.**
-
-* [ava](https://github.com/avajs/ava)
-* [husky](https://github.com/typicode/husky)
-* [jsinspect](https://github.com/danielstjules/jsinspect)
-* [nyc](https://github.com/istanbuljs/nyc)
-* [xo](https://github.com/xojs/xo)
-
 **The following dependencies need to be manually installed.**
 
 * [ShellCheck](https://github.com/koalaman/shellcheck)
@@ -108,12 +100,3 @@ This project targets NodeJS 13.
   * `apt install shellcheck`
 * [hadolint](https://github.com/hadolint/hadolint)
   * `brew install hadolint`
-
-#### Runtime dependencies
-
-**The following dependencies are available via npm.**
-
-* [body-parser](https://github.com/expressjs/body-parser)
-* [debug](https://github.com/visionmedia/debug)
-* [express](https://github.com/expressjs/express)
-* [lowdb](https://github.com/typicode/lowdb)
