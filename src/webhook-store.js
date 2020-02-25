@@ -18,7 +18,7 @@ class WebhookStore {
   * Store a webhook for later use.
   * @param webhook {Object} - The webhook as received from GitLab.
   */
-  store(webhook) {
+  store(webhook, ingestTimestamp = Date.now()) {
     const body = JSON.stringify(webhook);
 
     // A weak file hash used for creating a unique name
@@ -26,7 +26,7 @@ class WebhookStore {
     debug(`Storing webhook with hash ${hash}. Ignoring if duplicate`);
 
     const statement = this.db.prepare('INSERT OR IGNORE INTO webhooks VALUES (?, ?, ?)');
-    statement.run(hash, Date.now(), body);
+    statement.run(hash, ingestTimestamp, body);
     statement.finalize();
   }
 
