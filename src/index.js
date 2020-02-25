@@ -9,7 +9,7 @@ const State = require('./state');
 const achievements = require('./achievements.json');
 const WebhookStore = require('./webhook-store');
 const {executeHooks} = utils.hooks;
-const {createDirectory, storeWebhook, loadWebhooks} = utils.io;
+const {createDirectory} = utils.io;
 
 const DATA_DIRECTORY = process.env.DATA_DIRECTORY || './data';
 const STORE_FILE = `${DATA_DIRECTORY}/store.json`;

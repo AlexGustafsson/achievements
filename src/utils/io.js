@@ -1,6 +1,4 @@
 const fs = require('fs');
-const crypto = require('crypto');
-const path = require('path');
 
 /**
 * Create a directory as needed.
