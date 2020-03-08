@@ -47,6 +47,27 @@ class WebhookStore {
 
     return rows;
   }
+
+  async getWebhookInfo() {
+    let count = [];
+    try {
+      count = await this.db.all('SELECT COUNT(1) FROM webhooks');
+    } catch (error) {
+      throw error;
+    }
+
+    let latest = [];
+    try {
+      latest = await this.db.all('SELECT created FROM webhooks ORDER BY created DESC LIMIT 1');
+    } catch (error) {
+      throw error;
+    }
+
+    return {
+      webhooks: count[0]['COUNT(1)'],
+      latest: latest[0]['created']
+    };
+  }
 }
 
 module.exports = WebhookStore;
