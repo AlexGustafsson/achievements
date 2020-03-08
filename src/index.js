@@ -78,7 +78,7 @@ app.get('/achievements', (req, res) => {
 app.get('/info', async (req, res) => {
   const info = await webhookStore.getWebhookInfo();
   return res.json(info);
-})
+});
 
 async function checkStoredWebhooks() {
   // Run through all stored hooks to check for new achievements
