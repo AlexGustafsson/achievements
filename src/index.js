@@ -44,7 +44,7 @@ app.post('/webhook', (req, res) => {
   if (!hooks)
     return res.status(400).json({error: 'No such hook'});
 
-  executeHooks(state, webhook, hooks);
+  executeHooks(userStore, webhook, hooks);
   return res.status(200).json({});
 });
 

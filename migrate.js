@@ -21,9 +21,9 @@ async function main() {
   for (const filePath of filePaths) {
     try {
       const file = path.resolve(WEBHOOKS_DIRECTORY, `./${filePath}`);
-      const content = await fs.promises.readFile(file);
+      const content = await fs.promises.readFile(file); // eslint-disable-line  no-await-in-loop
       const webhook = JSON.parse(content);
-      const {birthtime} = await fs.promises.stat(file);
+      const {birthtime} = await fs.promises.stat(file); // eslint-disable-line no-await-in-loop
       webhookStore.store(webhook, birthtime);
     } catch (error) {
       throw new Error(`Unable to read stored webhook '${filePath}'`, error);
@@ -40,10 +40,10 @@ async function main() {
       avatar: user.avatar
     };
 
-    await userStore.createOrUpdateUser(values);
+    await userStore.createOrUpdateUser(values); // eslint-disable-line  no-await-in-loop
 
     for (const achievement of user.achievements)
-      await userStore.unlockAchievement(values, achievement.name, achievement.timestamp);
+      await userStore.unlockAchievement(values, achievement.name, achievement.timestamp); // eslint-disable-line  no-await-in-loop
   }
 }
 

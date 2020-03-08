@@ -108,7 +108,7 @@ class UserStore {
     const users = [];
     for (const uuid of uuids.map(row => row.uuid)) {
       try {
-        const user = await this.getUser(uuid);
+        const user = await this.getUser(uuid); // eslint-disable-line  no-await-in-loop
         users.push(user);
       } catch (error) {
         throw error;
