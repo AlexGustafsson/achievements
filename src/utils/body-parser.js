@@ -4,22 +4,29 @@
 * @returns {Object} - The parsed user object.
 */
 function parseUser(body) {
+  let user = null;
+
   if (body['user']) {
-    return {
-      id: null,
-      name: body['user']['name'],
-      username: body['user']['username'],
-      avatar: body['user']['avatar_url']
+    user = {
+      id: body['user']['id'] || null,
+      name: body['user']['name'] || null,
+      username: body['user']['username'] || null,
+      avatar: body['user']['avatar_url'] || null,
+      email: body['user']['email'] || null
+    };
+  } else {
+    user = {
+      id: body['user_id'] || null,
+      name: body['user_name'] || null,
+      username: body['user_username'] || null,
+      email: body['user_email'] || null,
+      avatar: body['user_avatar'] || null
     };
   }
 
-  return {
-    id: body['user_id'],
-    name: body['user_name'],
-    username: body['user_username'],
-    email: body['user_email'],
-    avatar: body['user_avatar']
-  };
+  user.email = user.email === '' ? null : user.email;
+
+  return user;
 }
 
 module.exports = {

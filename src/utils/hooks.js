@@ -1,21 +1,20 @@
-const {unlockAchievement} = require('./state');
-
 /**
 * Execute hooks in series and handle unlocks.
-* @param state {Object} - The state object to use.
+* @param userStore {Object} - The user store to use.
 * @param body {Object} - The parsed JSON body received from GitLab.
 * @param hooks {Array} - An array of hooks to call.
+* @param timestamp {Number} - The timestamp of the hook execution.
 */
-async function executeHooks(state, body, hooks) {
+async function executeHooks(userStore, body, hooks, timestamp = Date.now()) {
   /* eslint-disable no-await-in-loop */
   for (const hook of hooks) {
-    const unlocks = await hook(state, body);
+    const unlocks = await hook(userStore, body);
     // Skip non-arrays
     if (!Array.isArray(unlocks))
       continue;
     for (const unlock of unlocks) {
       const {user, achievement} = unlock;
-      unlockAchievement(state, user, achievement);
+      await userStore.unlockAchievement(user, achievement, timestamp);
     }
   }
   /* eslint-enable no-await-in-loop */

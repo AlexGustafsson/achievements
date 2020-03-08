@@ -3,6 +3,8 @@ const crypto = require('crypto');
 const debug = require('debug')('achievements:webhook-store');
 const sqlite3 = require('sqlite3').verbose();
 
+const {promisify} = require('./utils').db;
+
 class WebhookStore {
   constructor() {
     this.db = null;
@@ -11,6 +13,8 @@ class WebhookStore {
   load(path) {
     debug(`Loading database from ${path}`);
     this.db = new sqlite3.Database(path);
+    promisify(this.db);
+
     this.db.run('CREATE TABLE IF NOT EXISTS webhooks (hash TEXT, created DATETIME, body TEXT)');
   }
 
@@ -18,7 +22,7 @@ class WebhookStore {
   * Store a webhook for later use.
   * @param webhook {Object} - The webhook as received from GitLab.
   */
-  store(webhook, ingestTimestamp = Date.now()) {
+  async store(webhook, ingestTimestamp = Date.now()) {
     const body = JSON.stringify(webhook);
 
     // A weak file hash used for creating a unique name
@@ -26,19 +30,22 @@ class WebhookStore {
     debug(`Storing webhook with hash ${hash}. Ignoring if duplicate`);
 
     const statement = this.db.prepare('INSERT OR IGNORE INTO webhooks VALUES (?, ?, ?)');
-    statement.run(hash, ingestTimestamp, body);
+    await statement.run(hash, ingestTimestamp, body);
     statement.finalize();
   }
 
-  getWebhooks() {
-    return new Promise((resolve, reject) => {
-      this.db.all('SELECT * FROM webhooks', (error, rows) => {
-        if (error)
-          return reject(error);
+  async getWebhooks() {
+    let rows = [];
+    try {
+      rows = await this.db.all('SELECT * FROM webhooks');
+    } catch (error) {
+      throw error;
+    }
 
-        resolve(rows.map(row => JSON.parse(row.body)));
-      });
-    });
+    for (const row of rows)
+      row.body = JSON.parse(row.body);
+
+    return rows;
   }
 }
 

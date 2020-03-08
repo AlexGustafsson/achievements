@@ -1,6 +1,6 @@
 {
   "First blood": {
-    "description": "Push a commit you authored to GitLab.",
+    "description": "Push a commit to GitLab.",
     "points": 1
   },
   "You shall not pass": {
@@ -12,7 +12,7 @@
     "points": 2
   },
   "Night's watchman": {
-    "description": "Author a commit between 1AM and 3AM",
+    "description": "Push a commit between 1AM and 3AM",
     "points": 3
   },
   "Tree of life": {

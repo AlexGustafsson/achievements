@@ -5,21 +5,20 @@ const cors = require('cors');
 
 const {hookByKind} = require('./hooks');
 const utils = require('./utils');
-const State = require('./state');
 const achievements = require('./achievements.json');
 const WebhookStore = require('./webhook-store');
+const UserStore = require('./user-store');
 const {executeHooks} = utils.hooks;
-const {createDirectory} = utils.io;
 
 const DATA_DIRECTORY = process.env.DATA_DIRECTORY || './data';
-const STORE_FILE = `${DATA_DIRECTORY}/store.json`;
 const WEBHOOK_STORE_FILE = `${DATA_DIRECTORY}/webhooks.sqlite3`;
+const USER_STORE_FILE = `${DATA_DIRECTORY}/users.sqlite3`;
 const {GITLAB_TOKEN} = process.env;
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-const state = new State();
 const webhookStore = new WebhookStore();
+const userStore = new UserStore();
 
 // Setup Body Parser as a middleware
 app.use(bodyParser.json());
@@ -50,8 +49,9 @@ app.post('/webhook', (req, res) => {
 });
 
 // List users endpoint
-app.get('/users', (req, res) => {
-  const users = state.db.get('users').value();
+app.get('/users', async (req, res) => {
+  const users = await userStore.getUsers();
+  console.log(users);
   // Strip emails
   for (const user of users)
     delete user.email;
@@ -59,9 +59,9 @@ app.get('/users', (req, res) => {
 });
 
 // List specific user endpoint
-app.get('/users/:username', (req, res) => {
-  const {username} = req.params;
-  const user = state.db.get('users').find({username}).value();
+app.get('/users/:uuid', async (req, res) => {
+  const {uuid} = req.params;
+  const user = await userStore.getUser(uuid);
   if (user) {
     // Strip email
     delete user.email;
@@ -87,22 +87,19 @@ async function checkStoredWebhooks() {
 
   debug(`Loaded ${webhooks.length} stored webhook(s). Checking them for new achievements`);
   for (const webhook of webhooks) {
-    const kind = webhook['object_kind'];
+    const kind = webhook.body['object_kind'];
     const hooks = hookByKind(kind);
     if (hooks)
-      await executeHooks(state, webhook, hooks); // eslint-disable-line no-await-in-loop
+      await executeHooks(userStore, webhook.body, hooks, webhook.created); // eslint-disable-line no-await-in-loop
   }
 }
 
 async function start() {
-  // Initialize data directories
-  await createDirectory(DATA_DIRECTORY);
-
-  // Initialize the state store
-  state.load(STORE_FILE);
-
   // Initialize the webhook store
-  webhookStore.load(WEBHOOK_STORE_FILE);
+  await webhookStore.load(WEBHOOK_STORE_FILE);
+
+  // Initialize the user store
+  await userStore.load(USER_STORE_FILE);
 
   await checkStoredWebhooks();
 

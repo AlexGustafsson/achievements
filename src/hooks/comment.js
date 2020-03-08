@@ -1,16 +1,15 @@
 const utils = require('../utils');
 const {parseUser} = utils.bodyParser;
-const {userHasAchievement} = utils.state;
 
 /**
 * Check for completion for the 'You see my point?' achievement.
-* @param state {Object} - The state object to use.
+* @param userStore {Object} - The user store object to use.
 * @param body {Object} - The parsed JSON body received from GitLab.
 * @returns {Array} - An array of unlocked achievements.
 */
-async function checkYouSeeMyPoint(state, body) {
+async function checkYouSeeMyPoint(userStore, body) {
   const user = parseUser(body);
-  if (userHasAchievement(state, user, 'You see my point?'))
+  if (await userStore.userHasAchievement(user, 'You see my point?'))
     return [];
 
   // Unlock the achievement if a user has commented on a merge request
