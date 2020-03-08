@@ -51,7 +51,6 @@ app.post('/webhook', (req, res) => {
 // List users endpoint
 app.get('/users', async (req, res) => {
   const users = await userStore.getUsers();
-  console.log(users);
   // Strip emails
   for (const user of users)
     delete user.email;
