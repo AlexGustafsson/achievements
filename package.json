@@ -17,18 +17,17 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "ava": "^3.2.0",
-    "husky": "^4.2.1",
+    "ava": "^3.5.0",
+    "husky": "^4.2.3",
     "jsinspect": "^0.12.7",
     "nyc": "^15.0.0",
-    "xo": "^0.25.3"
+    "xo": "^0.27.2"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "debug": "^4.1.1",
     "express": "^4.17.1",
-    "lowdb": "^1.0.0",
     "sqlite3": "^4.1.1",
     "uuid": "^7.0.2"
   },
