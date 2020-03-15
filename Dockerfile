@@ -9,6 +9,8 @@ COPY . .
 
 EXPOSE 3000
 
+RUN mkdir -p /app/data && chown node:node /app/data
+
 # Use a non-root user for the application
 USER node
 

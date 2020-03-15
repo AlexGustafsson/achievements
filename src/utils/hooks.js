@@ -9,9 +9,11 @@ async function executeHooks(userStore, body, hooks, timestamp = Date.now()) {
   /* eslint-disable no-await-in-loop */
   for (const hook of hooks) {
     const unlocks = await hook(userStore, body);
+
     // Skip non-arrays
     if (!Array.isArray(unlocks))
       continue;
+
     for (const unlock of unlocks) {
       const {user, achievement} = unlock;
       await userStore.unlockAchievement(user, achievement, timestamp);

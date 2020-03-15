@@ -1,21 +1,19 @@
 const crypto = require('crypto');
 
 const debug = require('debug')('achievements:webhook-store');
-const sqlite3 = require('sqlite3').verbose();
 
-const {promisify} = require('./utils').db;
+const {createDatabase} = require('./utils').db;
 
 class WebhookStore {
   constructor() {
     this.db = null;
   }
 
-  load(path) {
+  async load(path) {
     debug(`Loading database from ${path}`);
-    this.db = new sqlite3.Database(path);
-    promisify(this.db);
+    this.db = await createDatabase(path);
 
-    this.db.run('CREATE TABLE IF NOT EXISTS webhooks (hash TEXT, created DATETIME, body TEXT)');
+    await this.db.run('CREATE TABLE IF NOT EXISTS webhooks (hash TEXT, created DATETIME, body TEXT)');
   }
 
   /**
@@ -29,18 +27,13 @@ class WebhookStore {
     const hash = crypto.createHash('md5').update(body).digest('hex');
     debug(`Storing webhook with hash ${hash}. Ignoring if duplicate`);
 
-    const statement = this.db.prepare('INSERT OR IGNORE INTO webhooks VALUES (?, ?, ?)');
+    const statement = await this.db.prepare('INSERT OR IGNORE INTO webhooks VALUES (?, ?, ?)');
     await statement.run(hash, ingestTimestamp, body);
-    statement.finalize();
+    await statement.finalize();
   }
 
   async getWebhooks() {
-    let rows = [];
-    try {
-      rows = await this.db.all('SELECT * FROM webhooks');
-    } catch (error) {
-      throw error;
-    }
+    const rows = await this.db.all('SELECT * FROM webhooks');
 
     for (const row of rows)
       row.body = JSON.parse(row.body);
@@ -49,19 +42,8 @@ class WebhookStore {
   }
 
   async getWebhookInfo() {
-    let count = [];
-    try {
-      count = await this.db.all('SELECT COUNT(1) FROM webhooks');
-    } catch (error) {
-      throw error;
-    }
-
-    let latest = [];
-    try {
-      latest = await this.db.all('SELECT created FROM webhooks ORDER BY created DESC LIMIT 1');
-    } catch (error) {
-      throw error;
-    }
+    const count = await this.db.all('SELECT COUNT(1) FROM webhooks');
+    const latest = await this.db.all('SELECT created FROM webhooks ORDER BY created DESC LIMIT 1');
 
     return {
       webhooks: count[0]['COUNT(1)'],

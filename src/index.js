@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const debug = require('debug')('achievements:server');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -27,7 +29,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // The GitLab webhook endpoint
-app.post('/webhook', (req, res) => {
+app.post('/webhook', async (req, res) => {
   const event = req.header('X-Gitlab-Event');
   if (!event)
     return res.status(400).json({error: 'Missing GitLab event header'});
@@ -37,20 +39,37 @@ app.post('/webhook', (req, res) => {
     return res.status(403).json({error: 'Missing or bad GitLab token header'});
 
   const webhook = req.body;
-  webhookStore.store(webhook);
+  try {
+    await webhookStore.store(webhook);
+  } catch (error) {
+    debug('Unable to store webhook', error);
+    return res.status(500).json({});
+  }
 
   const kind = webhook['object_kind'];
   const hooks = hookByKind(kind);
   if (!hooks)
     return res.status(400).json({error: 'No such hook'});
 
-  executeHooks(userStore, webhook, hooks);
+  try {
+    await executeHooks(userStore, webhook, hooks);
+  } catch (error) {
+    debug('Unable to execute hooks', error);
+    return res.status(500).json({});
+  }
+
   return res.status(200).json({});
 });
 
 // List users endpoint
 app.get('/users', async (req, res) => {
-  const users = await userStore.getUsers();
+  let users = [];
+  try {
+    users = await userStore.getUsers();
+  } catch {
+    return res.status(500).json({});
+  }
+
   // Strip emails
   for (const user of users)
     delete user.email;
@@ -60,7 +79,15 @@ app.get('/users', async (req, res) => {
 // List specific user endpoint
 app.get('/users/:uuid', async (req, res) => {
   const {uuid} = req.params;
-  const user = await userStore.getUser(uuid);
+
+  let user = null;
+  try {
+    user = await userStore.getUser(uuid);
+  } catch (error) {
+    debug(`Unable to get user with uuid ${uuid}`, error);
+    return res.status(500).json({});
+  }
+
   if (user) {
     // Strip email
     delete user.email;
@@ -76,7 +103,14 @@ app.get('/achievements', (req, res) => {
 });
 
 app.get('/info', async (req, res) => {
-  const info = await webhookStore.getWebhookInfo();
+  let info = null;
+  try {
+    info = await webhookStore.getWebhookInfo();
+  } catch (error) {
+    debug('Unable to get webhook storage info', error);
+    return res.status(500).json({});
+  }
+
   return res.json(info);
 });
 
@@ -93,17 +127,32 @@ async function checkStoredWebhooks() {
   for (const webhook of webhooks) {
     const kind = webhook.body['object_kind'];
     const hooks = hookByKind(kind);
-    if (hooks)
-      await executeHooks(userStore, webhook.body, hooks, webhook.created); // eslint-disable-line no-await-in-loop
+    if (hooks) {
+      try {
+        await executeHooks(userStore, webhook.body, hooks, webhook.created); // eslint-disable-line no-await-in-loop
+      } catch (error) {
+        debug('Unable to execute hook', error);
+      }
+    }
   }
 }
 
 async function start() {
   // Initialize the webhook store
-  await webhookStore.load(WEBHOOK_STORE_FILE);
+  try {
+    await webhookStore.load(WEBHOOK_STORE_FILE);
+  } catch (error) {
+    debug('Unable to load webhook store', error);
+    process.exit(1);
+  }
 
   // Initialize the user store
-  await userStore.load(USER_STORE_FILE);
+  try {
+    await userStore.load(USER_STORE_FILE);
+  } catch (error) {
+    debug('Unable to load user store', error);
+    process.exit(1);
+  }
 
   await checkStoredWebhooks();
 

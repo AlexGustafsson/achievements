@@ -4,8 +4,8 @@
   "description": "A GitLab webhook listener to add achievements to interactions",
   "main": "src/index.js",
   "scripts": {
-    "dev": "DEBUG=achievements:* node src/index.js",
-    "start": "DEBUG=achievements:* NODE_ENV=production node src/index.js",
+    "dev": "DEBUG=achievements:* node --unhandled-rejections=strict src/index.js",
+    "start": "DEBUG=achievements:* NODE_ENV=production node --unhandled-rejections=strict src/index.js",
     "lint-javascript": "xo",
     "lint-shell": "shellcheck $(find . -type f -name '*.sh' -not -path './node_modules/*' -not -path './.git/*') $(find ./ci/hooks -type f)",
     "lint-docker": "hadolint --config .hadolint.yml Dockerfile",

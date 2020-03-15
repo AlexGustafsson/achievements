@@ -1,5 +1,6 @@
-node_modules
-README.md
-test
-.nyc-output
-store.json
+# Ignore everything
+*
+
+# Whitelist project code
+!/src
+!/package*.json
