@@ -66,6 +66,9 @@
       ],
       "padding-line-between-statements": [
         "off"
+      ],
+      "unicorn/string-content": [
+        "off"
       ]
     }
   },
