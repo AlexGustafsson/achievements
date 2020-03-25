@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+const fs = require('fs');
+
 const debug = require('debug')('achievements:server');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -138,12 +140,23 @@ async function checkStoredWebhooks() {
 }
 
 async function start() {
+  debug('Starting achievements server');
+
   // Initialize the webhook store
   try {
     await webhookStore.load(WEBHOOK_STORE_FILE);
   } catch (error) {
     debug('Unable to load webhook store', error);
     process.exit(1);
+  }
+
+  // Remove the user store if it exists, it will be recreated using stored webhooks
+  // This is to resolve any potential conflicts for stateful hooks
+  try {
+    debug('Removing user store file if it exists');
+    fs.unlinkSync(USER_STORE_FILE);
+  } catch (error) {
+    debug('Unable to remove user store', error);
   }
 
   // Initialize the user store
@@ -159,7 +172,7 @@ async function start() {
   // Start the server
   const port = PORT;
   app.listen(port);
-  debug(`Listening on port ${port}`);
+  debug(`Ready and listening on port ${port}`);
 }
 
 start();

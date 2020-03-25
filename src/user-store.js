@@ -14,6 +14,7 @@ class UserStore {
 
     await this.db.run('CREATE TABLE IF NOT EXISTS users (uuid TEXT PRIMARY KEY, id INT UNIQUE, name TEXT, username TEXT UNIQUE, avatar TEXT, email TEXT UNIQUE)');
     await this.db.run('CREATE TABLE IF NOT EXISTS unlocks (user TEXT, name TEXT, timestamp DATETIME, PRIMARY KEY (user, name))');
+    await this.db.run('CREATE TABLE IF NOT EXISTS metadata (user TEXT, achievement TEXT, data TEXT, PRIMARY KEY (user, achievement))');
   }
 
   /**
@@ -120,6 +121,51 @@ class UserStore {
     await statement.finalize();
 
     return user;
+  }
+
+  /**
+  * Load metadata for a specific user.
+  * @param user {Object} - The user for which to get metadata.
+  * @param achievement {String} - The achievement the data is for.
+  */
+  async getMetadata(user, achievement) {
+    const uuid = await this.createOrUpdateUser(user);
+
+    const statement = await this.db.prepare('SELECT * FROM metadata WHERE user = ? and achievement = ?');
+    const result = await statement.all(uuid, achievement);
+    await statement.finalize();
+
+    if (result.length === 0)
+      return {};
+
+    return JSON.parse(result[0].data);
+  }
+
+  /**
+  * Store metadata for a specific user.
+  * @param user {Object} - The user for which to set metadata.
+  * @param achievement {String} - The achievement the data is for.
+  * @param data {Object} - The metadata to store.
+  */
+  async setMetadata(user, achievement, data) {
+    const uuid = await this.createOrUpdateUser(user);
+
+    const statement = await this.db.prepare('INSERT OR REPLACE INTO metadata VALUES (?, ?, ?)');
+    await statement.run(uuid, achievement, JSON.stringify(data));
+    await statement.finalize();
+  }
+
+  /**
+  * Clear metadata for a specific user.
+  * @param user {Object} - The user for which to clear metadata.
+  * @param achievement {String} - The achievement to clear.
+  */
+  async clearMetadata(user, achievement) {
+    const uuid = await this.createOrUpdateUser(user);
+
+    const statement = await this.db.prepare('DELETE FROM metadata WHERE user = ? and achievement = ?');
+    await statement.run(uuid, achievement);
+    await statement.finalize();
   }
 }
 
