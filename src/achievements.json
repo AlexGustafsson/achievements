@@ -34,5 +34,21 @@
   "Skipping lunch": {
     "description": "Push a commit authored between 11AM and 12AM",
     "points": 2
+  },
+  "Apprentice Reviewer": {
+    "description": "Write more than 25 comments on merge reviews not authored by yourself",
+    "points": 2
+  },
+  "Adept Reviewer": {
+    "description": "Write more than 75 comments on merge reviews not authored by yourself",
+    "points": 5
+  },
+  "Master Reviewer": {
+    "description": "Write more than 150 comments on merge reviews not authored by yourself",
+    "points": 8
+  },
+  "Grandmaster Reviewer": {
+    "description": "Write more than 200 comments on merge reviews not authored by yourself",
+    "points": 13
   }
 }
