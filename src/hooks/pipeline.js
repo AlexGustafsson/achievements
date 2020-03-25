@@ -56,7 +56,48 @@ async function checkYouShallNotPass(userStore, body) {
   return [];
 }
 
+/**
+* Check for completion for the '<Rank> of the Pipeline' achievements.
+* @param userStore {Object} - The user store object to use.
+* @param body {Object} - The parsed JSON body received from GitLab.
+* @returns {Array} - An array of unlocked achievements.
+*/
+async function checkPipelineRank(userStore, body) {
+  const user = parseUser(body);
+  if (await userStore.userHasAchievement(user, 'Guardian of the Pipeline'))
+    return [];
+
+  const metadata = await userStore.getMetadata(user, 'Pipeline Rank');
+  metadata['pipelines'] = metadata['pipelines'] || 0;
+
+  const status = body['object_attributes']['status'];
+  if (status === 'failed')
+    metadata['pipelines'] = 0;
+  else if (status === 'success')
+    metadata['pipelines'] += 1;
+  else
+    return [];
+
+  await userStore.setMetadata(user, 'Pipeline Rank', metadata);
+
+  if (metadata['pipelines'] === 20) {
+    // Remove metadata
+    await userStore.clearMetadata(user, 'Pipeline Rank');
+    return [{user, achievement: 'Guardian of the Pipeline'}];
+  }
+
+  if (metadata['pipelines'] === 15)
+    return [{user, achievement: 'Knight of the Pipeline'}];
+
+  if (metadata['pipelines'] === 7)
+    return [{user, achievement: 'Protector of the Pipeline'}];
+
+  if (metadata['pipelines'] === 2)
+    return [{user, achievement: 'Prospector of the Pipeline'}];
+}
+
 module.exports = [
   checkNotYourDay,
-  checkYouShallNotPass
+  checkYouShallNotPass,
+  checkPipelineRank
 ];

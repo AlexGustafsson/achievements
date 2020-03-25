@@ -44,8 +44,6 @@ async function checkReviewerRank(userStore, body) {
   metadata['comments'] += 1;
   await userStore.setMetadata(user, 'Reviewer Rank', metadata);
 
-  console.log(user.username, metadata);
-
   if (metadata['comments'] === 200) {
     // Remove metadata
     await userStore.clearMetadata(user, 'Reviewer Rank');

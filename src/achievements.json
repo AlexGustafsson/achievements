@@ -50,5 +50,21 @@
   "Grandmaster Reviewer": {
     "description": "Write more than 200 comments on merge reviews not authored by yourself",
     "points": 13
+  },
+  "Prospector of the Pipeline": {
+    "description": "Pass 5 or more pipelines in a row",
+    "points": 2
+  },
+  "Protector of the Pipeline": {
+    "description": "Pass 7 or more pipelines in a row",
+    "points": 5
+  },
+  "Knight of the Pipeline": {
+    "description": "Pass 15 or more pipelines in a row",
+    "points": 8
+  },
+  "Guardian of the Pipeline": {
+    "description": "Pass 20 or more pipelines in a row",
+    "points": 13
   }
 }

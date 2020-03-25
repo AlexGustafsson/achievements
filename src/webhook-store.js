@@ -33,7 +33,7 @@ class WebhookStore {
   }
 
   async getWebhooks() {
-    const rows = await this.db.all('SELECT * FROM webhooks');
+    const rows = await this.db.all('SELECT * FROM webhooks ORDER BY created ASC');
 
     for (const row of rows)
       row.body = JSON.parse(row.body);
