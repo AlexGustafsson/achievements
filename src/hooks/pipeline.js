@@ -2,7 +2,7 @@ const utils = require('../utils');
 const {parseUser} = utils.bodyParser;
 
 /**
-* Check for completion for the '"Not your day' achievement.
+* Check for completion for the 'Not your day' achievement.
 * @param userStore {Object} - The user store object to use.
 * @param body {Object} - The parsed JSON body received from GitLab.
 * @returns {Array} - An array of unlocked achievements.
@@ -38,6 +38,25 @@ async function checkNotYourDay(userStore, body) {
   return [];
 }
 
+/**
+* Check for completion for the 'You shall not pass' achievement.
+* @param userStore {Object} - The user store object to use.
+* @param body {Object} - The parsed JSON body received from GitLab.
+* @returns {Array} - An array of unlocked achievements.
+*/
+async function checkYouShallNotPass(userStore, body) {
+  const user = parseUser(body);
+  if (await userStore.userHasAchievement(user, 'You shall not pass'))
+    return [];
+
+  const failed = body['object_attributes']['status'] === 'failed';
+  if (failed)
+    return [{user, achievement: 'You shall not pass'}];
+
+  return [];
+}
+
 module.exports = [
-  checkNotYourDay
+  checkNotYourDay,
+  checkYouShallNotPass
 ];
