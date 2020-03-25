@@ -98,31 +98,31 @@ async function checkTreeOfLife(userStore, body) {
   if (await userStore.userHasAchievement(user, 'Tree of life'))
     return [];
 
-    const branchMatches = body['ref'].match(/refs\/heads\/(.*)/);
-    // Skip unknown branches
-    if (!branchMatches)
-      return [];
+  const branchMatches = body['ref'].match(/refs\/heads\/(.*)/);
+  // Skip unknown branches
+  if (!branchMatches)
+    return [];
 
-    const branch = branchMatches[1];
+  const branch = branchMatches[1];
 
-    const created = new Date(body['_webhook_timestamp']);
-    const year = created.getUTCFullYear();
-    const month = created.getUTCMonth().toString().padStart(2, '0');
-    const day = created.getUTCDate().toString().padStart(2, '0');
-    const date = `${year}-${month}-${day}`;
+  const created = new Date(body['_webhook_timestamp']);
+  const year = created.getUTCFullYear();
+  const month = created.getUTCMonth().toString().padStart(2, '0');
+  const day = created.getUTCDate().toString().padStart(2, '0');
+  const date = `${year}-${month}-${day}`;
 
-    const metadata = await userStore.getMetadata(user, 'Tree of life');
-    metadata['branches'] = metadata['branches'] || {};
-    metadata['branches'][date] = metadata['branches'][date] || {};
-    metadata['branches'][date][branch] = true;
-    await userStore.setMetadata(user, 'Tree of life', metadata);
+  const metadata = await userStore.getMetadata(user, 'Tree of life');
+  metadata['branches'] = metadata['branches'] || {};
+  metadata['branches'][date] = metadata['branches'][date] || {};
+  metadata['branches'][date][branch] = true;
+  await userStore.setMetadata(user, 'Tree of life', metadata);
 
-    // Unlock the achievement if the user has pushed to five or more branches the same day
-    if (Object.keys(metadata['branches'][date]).length >= 5) {
-      // Remove metadata
-      await userStore.clearMetadata(user, 'Tree of life');
-      return [{user, achievement: 'Tree of life'}];
-    }
+  // Unlock the achievement if the user has pushed to five or more branches the same day
+  if (Object.keys(metadata['branches'][date]).length >= 5) {
+    // Remove metadata
+    await userStore.clearMetadata(user, 'Tree of life');
+    return [{user, achievement: 'Tree of life'}];
+  }
 
   return [];
 }
