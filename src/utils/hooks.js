@@ -6,6 +6,9 @@
 * @param timestamp {Number} - The timestamp of the hook execution.
 */
 async function executeHooks(userStore, body, hooks, timestamp = Date.now()) {
+  // Add the webhook's creation timestamp
+  body['_webhook_timestamp'] = timestamp;
+
   /* eslint-disable no-await-in-loop */
   for (const hook of hooks) {
     const unlocks = await hook(userStore, body);
